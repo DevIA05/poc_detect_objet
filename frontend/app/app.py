@@ -12,7 +12,7 @@ x = np.linspace(0, 10, 100)
 y = np.sin(x)
 plt.plot(x, y)
 st.pyplot(plt)
-# Sélecteur de valeurs ---------------------------------------------------------
+# Sélection des valeurs --------------------------------------------------------
 option = st.selectbox("Choisissez une option", ("Option 1", "Option 2", 
                                                 "Option 3"))
 st.write("Vous avez sélectionné :", option)
