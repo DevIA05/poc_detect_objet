@@ -1,55 +1,43 @@
-# Package ----------------------------------------------------------------------
 import streamlit as st
-# Configuration ----------------------------------------------------------------
-# Titre de l'application
-st.title("Ma première application Streamlit")
-# Texte
-st.write("Bienvenue dans cette application !")
-# Affichage d'un graphique -----------------------------------------------------
-import matplotlib.pyplot as plt
-import numpy as np
-x = np.linspace(0, 10, 100)
-y = np.sin(x)
-plt.plot(x, y)
-st.pyplot(plt)
-# Sélection des valeurs --------------------------------------------------------
-option = st.selectbox("Choisissez une option", ("Option 1", "Option 2", 
-                                                "Option 3"))
-st.write("Vous avez sélectionné :", option)
-# Barre de progression ---------------------------------------------------------
-progress = st.progress(0)
-for i in range(100):
-    progress.progress(i + 1)
-# Affichage des données dans un tableau ----------------------------------------
-import pandas as pd
-data = pd.DataFrame({
-    "Colonne 1": [1, 2, 3, 4],
-    "Colonne 2": [10, 20, 30, 40]
-})
-st.write("Données:", data)
-# Affichage d'une carte --------------------------------------------------------
-import folium
-# Créer une carte Folium
-data = {
-    'Well Name': ['Paris', 'Londres', 'New York', 'Tokyo'],
-    'latitude': [48.8566, 51.5074, 40.7128, 35.6895],
-    'longitude': [2.3522, -0.1278, -74.0060, 139.6917]
-}
-df = pd.DataFrame(data)
-st.write("Carte :")
-st.map(df)
-# Affichage d'une vidéo --------------------------------------------------------
-st.write("Vidéo :")
-st.video("../ressource/video/video.mp4")
-# Affichage d'une image---------------------------------------------------------
-st.write("Image :")
-st.image("../ressource/image/image.png", caption="Une image")
-# Affichage de code ------------------------------------------------------------
-code = '''
-def hello():
-    print("Hello, Streamlit!")
+from PIL import Image
+from roboflow import Roboflow
+import tempfile
+import os
 
-hello()
-'''
-st.write("Code :")
-st.code(code, language='python')
+print(os.getcwd())
+# Initialiser Roboflow avec votre clé API
+rf = Roboflow(api_key="2TxsYnXVroUFJ6qR4qzg")
+# Obtenir le modèle souhaité à partir de votre projet Roboflow
+project = rf.workspace().project("ipd-pothole-detection")
+model = project.version(6).model
+# Titre de la page
+st.title("Prédiction d'images avec Roboflow")
+# Section pour télécharger l'image
+st.subheader("Télécharger une image")
+uploaded_file = st.file_uploader("Choisissez une image", type=["jpg", "jpeg", "png"])
+# Vérifier si une image a été téléchargée
+if uploaded_file is not None:
+    # Charger l'image avec PIL
+    image = Image.open(uploaded_file)
+    # Redimensionner l'image en 640x640 pixels
+    resized_image = image.resize((image.width // 2, image.height // 2))
+    # Afficher l'image téléchargée
+    st.image(resized_image, caption="Image téléchargée", use_column_width=True)
+    # Bouton pour effectuer la prédiction
+    if st.button("Prédire"):
+        # Enregistrer l'image redimensionnée temporairement sur le disque
+        with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as temp_image:
+            resized_image.save(temp_image.name)
+        # Effectuer la prédiction avec Roboflow
+        pred = model.predict(temp_image.name, confidence=40, overlap=30)
+        # prediction = model.predict(temp_image.name, confidence=50, overlap=50).json()
+        # Supprimer le fichier temporaire
+        os.remove(temp_image.name)
+        # # Afficher les résultats de prédiction
+        st.subheader("Résultats de prédiction")
+        st.json(pred.json())
+        # Affiché l'image prédite
+        # path_save = "prediction.jpg"
+        # converted_image = pred.convert("RGB")
+        # converted_image.save(path_save)
+        # st.image(path_save, caption="Image prédite", use_column_width=True)
