@@ -3,6 +3,7 @@ from PIL import Image
 from roboflow import Roboflow
 import tempfile
 import os
+import cv2
 
 print(os.getcwd())
 # Initialiser Roboflow avec votre clé API
@@ -22,22 +23,20 @@ if uploaded_file is not None:
     # Redimensionner l'image en 640x640 pixels
     resized_image = image.resize((image.width // 2, image.height // 2))
     # Afficher l'image téléchargée
-    st.image(resized_image, caption="Image téléchargée", use_column_width=True)
+    st.image(image, caption="Image téléchargée", use_column_width=True)
     # Bouton pour effectuer la prédiction
     if st.button("Prédire"):
         # Enregistrer l'image redimensionnée temporairement sur le disque
         with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as temp_image:
-            resized_image.save(temp_image.name)
+            image.save(temp_image.name)
         # Effectuer la prédiction avec Roboflow
-        pred = model.predict(temp_image.name, confidence=40, overlap=30)
+        path_save = "prediction.jpg"
+        pred = model.predict(temp_image.name, confidence=40, overlap=30).save(path_save)
         # prediction = model.predict(temp_image.name, confidence=50, overlap=50).json()
         # Supprimer le fichier temporaire
         os.remove(temp_image.name)
         # # Afficher les résultats de prédiction
-        st.subheader("Résultats de prédiction")
-        st.json(pred.json())
+        # st.subheader("Résultats de prédiction")
+        # st.json(pred.json())
         # Affiché l'image prédite
-        # path_save = "prediction.jpg"
-        # converted_image = pred.convert("RGB")
-        # converted_image.save(path_save)
-        # st.image(path_save, caption="Image prédite", use_column_width=True)
+        st.image(path_save, caption="Image prédite", use_column_width=True)
