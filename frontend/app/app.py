@@ -3,7 +3,6 @@ from PIL import Image
 from roboflow import Roboflow
 import tempfile
 import os
-import cv2
 
 print(os.getcwd())
 # Initialiser Roboflow avec votre clé API
