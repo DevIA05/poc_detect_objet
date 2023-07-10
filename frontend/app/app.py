@@ -29,7 +29,7 @@ if uploaded_file is not None:
         with tempfile.NamedTemporaryFile(suffix=".jpg", delete=False) as temp_image:
             resized_image.save(temp_image.name)
         # Effectuer la prédiction avec Roboflow
-        pred = model.predict(temp_image.name, confidence=40, overlap=30)
+            pred = model.predict(temp_image.name, confidence=40, overlap=30)
         # prediction = model.predict(temp_image.name, confidence=50, overlap=50).json()
         # Supprimer le fichier temporaire
         os.remove(temp_image.name)
